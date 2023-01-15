@@ -1,9 +1,7 @@
-resource "aws_sns_topic" "example" {
-  name = "example"
-}
+resource "aws_sns_topic" "sns-s3" {
+  name = "sns-s3"
 
-resource "aws_sns_topic_policy" "example" {
-  arn     = aws_sns_topic.example.arn
+
   policy  = <<EOF
 {
   "Version": "2012-10-17",
@@ -14,7 +12,7 @@ resource "aws_sns_topic_policy" "example" {
         "AWS": "*"
       },
       "Action": "SNS:Publish",
-      "Resource": "arn:aws:sns:*:*:example",
+      "Resource": "arn:aws:sns:*:*:sns-s3",
       "Condition": {
         "ArnLike": {
           "aws:SourceArn": "arn:aws:s3:*:*:*"
@@ -26,32 +24,18 @@ resource "aws_sns_topic_policy" "example" {
 EOF
 }
 
-# no.3
-resource "aws_sns_topic" "example" {
-  name = "example"
+resource "aws_sns_topic_subscription" "sns-sub-mail" {
+  topic_arn = aws_sns_topic.sns-s3.arn
+  protocol = "email"
+  endpoint = "mahmoud.ibrahim2411@gmail.com"
 }
 
-resource "aws_sns_topic_subscription" "example" {
-  topic_arn = aws_sns_topic.example.arn
-  protocol = "email"
-  endpoint = "example@example.com"
-  filter_policy = {
-   "type" = ["email"]
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.s3-bucket-micro-task.id
+  topic {
+    topic_arn     = aws_sns_topic.sns-s3.arn
+    events        = ["s3:ObjectCreated:*"]
   }
 }
 
-resource "aws_s3_bucket_notification" "example" {
-  bucket = aws_s3_bucket.example.bucket
-  topic_arn = aws_sns_topic.example.arn
-
-  events = ["s3:ObjectCreated:*"]
-}
-# events = ["s3:ObjectCreated:*"]
-#   filter {
-#     s3_key {
-#       rules = {
-#         "suffix" = ".txt"
-#       }
-#     }
-#   }
 
