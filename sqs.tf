@@ -9,7 +9,12 @@ resource "aws_sqs_queue" "terraform_first_queue" {
 
 resource "aws_sqs_queue" "terraform_secound_queue" {
   name = "My-secound-Queue"
-  visibility_timeout_seconds = 300
+  visibility_timeout_seconds = 15
+    redrive_policy    = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.dead_letter_queue.arn
+    maxReceiveCount    = 5
+  })
+
 }
 
 resource "aws_sqs_queue" "dead_letter_queue" {
@@ -31,6 +36,31 @@ resource "aws_sqs_queue_policy" "test" {
       "Principal": "*",
       "Action": "sqs:SendMessage",
       "Resource": "${aws_sqs_queue.terraform_first_queue.arn}",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "${aws_sns_topic.sns-s3.arn}"
+        }
+      }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_sqs_queue_policy" "test2" {
+  queue_url = aws_sqs_queue.terraform_secound_queue.id
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "sqspolicy",
+  "Statement": [
+    {
+      "Sid": "Secound",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sqs:SendMessage",
+      "Resource": "${aws_sqs_queue.terraform_secound_queue.arn}",
       "Condition": {
         "ArnEquals": {
           "aws:SourceArn": "${aws_sns_topic.sns-s3.arn}"

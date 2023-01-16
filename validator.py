@@ -26,11 +26,12 @@ while True:
     file_name = record["s3"]["object"]["key"]
     print(bucket_name)
     print(file_name)
-    s3.download_file(bucket_name, file_name, f'~/microserviese-task/{file_name}')
+    s3.download_file(bucket_name, file_name, f'/home/mahmoud/microserviese-task/{file_name}')
     # Delete the message from the queue
     sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
 
     with open(f'{file_name}', 'r') as f:
+        
         data = f.read()
         data = data.replace(',', '\n')
 
