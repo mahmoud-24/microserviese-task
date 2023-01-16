@@ -30,6 +30,6 @@ while True:
             print(body)
             print ("messages from the sqs queue and store successfully")
 
-    except KeyError:  # If no messages are available, do nothing 
+    except KeyError: 
 
         pass

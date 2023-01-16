@@ -1,7 +1,6 @@
 resource "aws_sns_topic" "sns-s3" {
   name = "sns-s3"
 
-
   policy  = <<EOF
 {
   "Version": "2012-10-17",
@@ -23,13 +22,11 @@ resource "aws_sns_topic" "sns-s3" {
 }
 EOF
 }
-
 resource "aws_sns_topic_subscription" "sns-sub-mail" {
   topic_arn = aws_sns_topic.sns-s3.arn
   protocol = "email"
   endpoint = "mahmoud.ibrahim2411@gmail.com"
 }
-
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.s3-bucket-micro-task.id
   topic {

@@ -1,4 +1,4 @@
-resource "aws_sqs_queue" "terraform_first_queue" {
+resource "aws_sqs_queue" "first_queue" {
   name = "My-first-Queue"
   visibility_timeout_seconds = 15
     redrive_policy    = jsonencode({
@@ -7,7 +7,7 @@ resource "aws_sqs_queue" "terraform_first_queue" {
   })
 }
 
-resource "aws_sqs_queue" "terraform_secound_queue" {
+resource "aws_sqs_queue" "secound_queue" {
   name = "My-secound-Queue"
   visibility_timeout_seconds = 15
     redrive_policy    = jsonencode({
@@ -23,7 +23,7 @@ resource "aws_sqs_queue" "dead_letter_queue" {
 }
 
 resource "aws_sqs_queue_policy" "test" {
-  queue_url = aws_sqs_queue.terraform_first_queue.id
+  queue_url = aws_sqs_queue.first_queue.id
 
   policy = <<POLICY
 {
@@ -35,7 +35,7 @@ resource "aws_sqs_queue_policy" "test" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "sqs:SendMessage",
-      "Resource": "${aws_sqs_queue.terraform_first_queue.arn}",
+      "Resource": "${aws_sqs_queue.first_queue.arn}",
       "Condition": {
         "ArnEquals": {
           "aws:SourceArn": "${aws_sns_topic.sns-s3.arn}"
@@ -48,7 +48,7 @@ POLICY
 }
 
 resource "aws_sqs_queue_policy" "test2" {
-  queue_url = aws_sqs_queue.terraform_secound_queue.id
+  queue_url = aws_sqs_queue.secound_queue.id
 
   policy = <<POLICY
 {
@@ -60,7 +60,7 @@ resource "aws_sqs_queue_policy" "test2" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "sqs:SendMessage",
-      "Resource": "${aws_sqs_queue.terraform_secound_queue.arn}",
+      "Resource": "${aws_sqs_queue.secound_queue.arn}",
       "Condition": {
         "ArnEquals": {
           "aws:SourceArn": "${aws_sns_topic.sns-s3.arn}"
@@ -76,13 +76,13 @@ resource "aws_sns_topic_subscription" "first_sqs_target" {
 
   topic_arn = aws_sns_topic.sns-s3.arn
   protocol  = "sqs"
-  endpoint  = aws_sqs_queue.terraform_first_queue.arn
+  endpoint  = aws_sqs_queue.first_queue.arn
 }
 
 resource "aws_sns_topic_subscription" "secound_sqs_target" {
 
   topic_arn = aws_sns_topic.sns-s3.arn
   protocol  = "sqs"
-  endpoint  = aws_sqs_queue.terraform_secound_queue.arn
+  endpoint  = aws_sqs_queue.secound_queue.arn
 }
 
